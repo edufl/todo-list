@@ -6,23 +6,23 @@ Um aplicativo de lista de tarefas desenvolvido com React, com foco em CRUD, pers
 
 ## 🚀 Funcionalidades
 
-✔ Adicionar tarefas  
-✔ Editar tarefas  
-✔ Remover tarefas  
-✔ Marcar como concluída  
-✔ Filtros (todas, pendentes, concluídas)  
-✔ Sistema de prioridade (baixa, média, alta)  
-✔ Contadores (total, concluídas, pendentes)  
-✔ Persistência com localStorage  
+- ✔ Adicionar tarefas  
+- ✏ Editar tarefas  
+- ❌ Remover tarefas  
+- ✅ Marcar como concluída  
+- 🔍 Filtros (todas, pendentes, concluídas)  
+- ⚡ Sistema de prioridade (baixa, média, alta)  
+- 📊 Contadores (total, concluídas, pendentes)  
+- 💾 Persistência com localStorage  
 
 ---
-## 🎥 Demonstração do To-Do List
 
-
+## 🎥 Demonstração
 
 https://github.com/user-attachments/assets/603463d5-dcbd-46c8-ba3b-869273b2bc10
 
 ---
+
 ## 🛠️ Tecnologias utilizadas
 
 - ⚛️ React (useState, useEffect)
@@ -32,32 +32,29 @@ https://github.com/user-attachments/assets/603463d5-dcbd-46c8-ba3b-869273b2bc10
 
 ---
 
----
 ## 📂 Estrutura do projeto
 
-```bash id="todo_structure"
 src/
- └── App.js
+└── App.js
 
 ---
 
 ## ⚙️ Como rodar o projeto
-```bash
-# clonar repositório
-git clone https://github.com/edufl/todo-list.git
 
-# entrar na pasta
+# Clonar repositório
+git clone https://github.com/edufl/todo-list
+
+# Entrar na pasta
 cd todo-list
 
-# instalar dependências
+# Instalar dependências
 npm install
 
-# rodar projeto
+# Rodar projeto
 npm run dev
 
 ---
+
 ## 👨‍💻 Autor
 
 Desenvolvido por **edufl**
----
-
