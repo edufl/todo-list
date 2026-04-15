@@ -40,7 +40,7 @@ src/
 ---
 
 ## ⚙️ Como rodar o projeto
-
+```bash
 # Clonar repositório
 git clone https://github.com/edufl/todo-list
 
@@ -52,6 +52,7 @@ npm install
 
 # Rodar projeto
 npm run dev
+```
 
 ---
 
