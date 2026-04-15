@@ -22,7 +22,6 @@ Um aplicativo de lista de tarefas desenvolvido com React, com foco em CRUD, pers
 
 https://github.com/user-attachments/assets/603463d5-dcbd-46c8-ba3b-869273b2bc10
 
-
 ---
 ## 🛠️ Tecnologias utilizadas
 
@@ -33,16 +32,16 @@ https://github.com/user-attachments/assets/603463d5-dcbd-46c8-ba3b-869273b2bc10
 
 ---
 
+---
 ## 📂 Estrutura do projeto
 
 ```bash id="todo_structure"
 src/
- ├── App.js
+ └── App.js
 
 ---
 
 ## ⚙️ Como rodar o projeto
-
 ```bash
 # clonar repositório
 git clone https://github.com/edufl/todo-list.git
@@ -55,11 +54,10 @@ npm install
 
 # rodar projeto
 npm run dev
-```
 
 ---
-
 ## 👨‍💻 Autor
 
 Desenvolvido por **edufl**
+---
 
