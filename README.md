@@ -51,7 +51,7 @@ cd todo-list
 npm install
 
 # Rodar projeto
-npm run dev
+npm start
 ```
 
 ---
