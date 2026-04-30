@@ -1,227 +1,340 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import "./App.css";
+
+// ─── Ícone SVG de clipe metálico ────────────────────────────────────────────
+const ClipIcon = () => (
+  <svg className="clip" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="0" width="40" height="12" rx="6" fill="#b0b8c1" stroke="#8a9099" strokeWidth="1.5"/>
+    <rect x="18" y="4" width="24" height="6" rx="3" fill="#d0d8e0" stroke="#9aa0a8" strokeWidth="1"/>
+    <rect x="14" y="10" width="32" height="22" rx="3" fill="#c8d0d8" stroke="#8a9099" strokeWidth="1.5"/>
+    <rect x="20" y="14" width="20" height="4" rx="2" fill="#e0e8f0" stroke="#aab0b8" strokeWidth="0.8"/>
+    <rect x="22" y="20" width="16" height="3" rx="1.5" fill="#e0e8f0" stroke="#aab0b8" strokeWidth="0.8"/>
+  </svg>
+);
+
+// ─── Configuração de prioridades ─────────────────────────────────────────────
+const PRIORITIES = [
+  { value: "Alta",    label: "Alta",    color: "#c0392b" },
+  { value: "Média",   label: "Média",   color: "#c8860a" },
+  { value: "Baixa",   label: "Baixa",   color: "#2e7d5e" },
+  { value: "Nenhuma", label: "Nenhuma", color: "#aaaaaa" },
+];
+
+// ─── Filtros de tarefas ──────────────────────────────────────────────────────
+const FILTERS = ["Todas", "Pendentes", "Concluídas"];
 
 function App() {
-  const [tarefa, setTarefa] = useState("");
-  const [prioridade, setPrioridade] = useState("media"); // 'baixa', 'media', 'alta'
-  const [editandoIndex, setEditandoIndex] = useState(null);
-  const [textoEditado, setTextoEditado] = useState("");
-  const [filtro, setFiltro] = useState("todas");
-
-  const [lista, setLista] = useState(() => {
-    const tarefasSalvas = localStorage.getItem("tarefas");
-    return tarefasSalvas ? JSON.parse(tarefasSalvas) : [];
+  // ── State ──────────────────────────────────────────────────────────────────
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const saved = localStorage.getItem("todo-tasks");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
+  const [input, setInput] = useState("");
+  const [priority, setPriority] = useState("Nenhuma");
+  const [filter, setFilter] = useState("Todas");
+  const [editingId, setEditingId] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [editPriority, setEditPriority] = useState("Nenhuma");
+  const [shake, setShake] = useState(false);
+  const inputRef = useRef(null);
+
+  // ── Persistência com localStorage ─────────────────────────────────────────
   useEffect(() => {
-    localStorage.setItem("tarefas", JSON.stringify(lista));
-  }, [lista]);
+    localStorage.setItem("todo-tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
-  function adicionarTarefa() {
-    if (!tarefa.trim()) return;
-    setLista([...lista, { texto: tarefa, concluida: false, prioridade }]);
-    setTarefa("");
-    setPrioridade("media");
-  }
+  // ── Foco automático no input ───────────────────────────────────────────────
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
-  function removerTarefa(index) {
-    setLista(lista.filter((_, i) => i !== index));
-  }
+  // ── CRUD: Criar ───────────────────────────────────────────────────────────
+  const addTask = () => {
+    const trimmed = input.trim();
+    if (!trimmed) {
+      setShake(true);
+      setTimeout(() => setShake(false), 400);
+      return;
+    }
+    const newTask = {
+      id: Date.now(),
+      text: trimmed,
+      completed: false,
+      priority: priority,
+      createdAt: new Date().toLocaleDateString("pt-BR"),
+    };
+    setTasks((prev) => [newTask, ...prev]);
+    setInput("");
+    setPriority("Nenhuma");
+    inputRef.current?.focus();
+  };
 
-  function toggleTarefa(index) {
-    setLista(
-      lista.map((item, i) =>
-        i === index ? { ...item, concluida: !item.concluida } : item
+  // ── CRUD: Toggle concluída ─────────────────────────────────────────────────
+  const toggleTask = (id) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+    );
+  };
+
+  // ── CRUD: Editar ──────────────────────────────────────────────────────────
+  const startEdit = (task) => {
+    setEditingId(task.id);
+    setEditText(task.text);
+    setEditPriority(task.priority || "Nenhuma");
+  };
+
+  const confirmEdit = (id) => {
+    const trimmed = editText.trim();
+    if (!trimmed) return;
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === id ? { ...t, text: trimmed, priority: editPriority } : t
       )
     );
-  }
+    setEditingId(null);
+    setEditText("");
+    setEditPriority("Nenhuma");
+  };
 
-  function iniciarEdicao(index) {
-    setEditandoIndex(index);
-    setTextoEditado(lista[index].texto);
-    setPrioridade(lista[index].prioridade);
-  }
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditText("");
+    setEditPriority("Nenhuma");
+  };
 
-  function salvarEdicao(index) {
-    setLista(
-      lista.map((item, i) =>
-        i === index ? { ...item, texto: textoEditado, prioridade } : item
-      )
-    );
-    setEditandoIndex(null);
-    setTextoEditado("");
-    setPrioridade("media");
-  }
+  // ── CRUD: Deletar ─────────────────────────────────────────────────────────
+  const deleteTask = (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+  };
 
-  const listaFiltrada = lista.filter((item) => {
-    if (filtro === "concluidas") return item.concluida;
-    if (filtro === "pendentes") return !item.concluida;
+  const clearCompleted = () => {
+    setTasks((prev) => prev.filter((t) => !t.completed));
+  };
+
+  // ── Filtros ───────────────────────────────────────────────────────────────
+  const filteredTasks = tasks.filter((t) => {
+    if (filter === "Pendentes") return !t.completed;
+    if (filter === "Concluídas") return t.completed;
     return true;
   });
 
-  const total = lista.length;
-  const concluidas = lista.filter((t) => t.concluida).length;
-  const pendentes = total - concluidas;
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const totalCount = tasks.length;
 
-  const coresPrioridade = {
-    baixa: "#28a745",
-    media: "#FFC107",
-    alta: "#E94E77",
+  // ── Enter / Escape ────────────────────────────────────────────────────────
+  const handleKeyDown = (e, action) => {
+    if (e.key === "Enter") action();
+    if (e.key === "Escape") cancelEdit();
   };
 
+  // ── Helper: pegar config de prioridade ───────────────────────────────────
+  const getPriority = (val) =>
+    PRIORITIES.find((p) => p.value === val) || PRIORITIES[3];
+
   return (
-    <div style={styles.page}>
-      <div style={styles.container}>
-        <h1 style={styles.title}>📝 To-Do List</h1>
+    <div className="app-bg">
+      {/* Overlay de névoa */}
+      <div className="mist-overlay" />
 
-        {/* Contadores */}
-        <div style={styles.contadores}>
-          <div style={{ ...styles.contadorBadge, background: "#4A90E2" }}>
-            Total <span style={styles.badge}>{total}</span>
+      {/* ── Clipboard ────────────────────────────────────────────────────── */}
+      <div className="clipboard-wrapper">
+        <div className="clipboard">
+
+          {/* Clipe metálico */}
+          <div className="clip-holder">
+            <ClipIcon />
           </div>
-          <div style={{ ...styles.contadorBadge, background: "#28a745" }}>
-            Concluídas <span style={styles.badge}>{concluidas}</span>
-          </div>
-          <div style={{ ...styles.contadorBadge, background: "#FFC107", color: "#000" }}>
-            Pendentes <span style={styles.badge}>{pendentes}</span>
-          </div>
-        </div>
 
-        {/* Input */}
-        <div style={styles.inputArea}>
-          <input
-            style={styles.input}
-            placeholder="Digite uma tarefa..."
-            value={tarefa}
-            onChange={(e) => setTarefa(e.target.value)}
-          />
-          <select
-            value={prioridade}
-            onChange={(e) => setPrioridade(e.target.value)}
-            style={styles.select}
-          >
-            <option value="baixa">Baixa</option>
-            <option value="media">Média</option>
-            <option value="alta">Alta</option>
-          </select>
-          <button style={styles.addButton} onClick={adicionarTarefa}>
-            +
-          </button>
-        </div>
+          {/* Papel dentro do clipboard */}
+          <div className="paper">
 
-        {/* Filtros */}
-        <div style={styles.filtros}>
-          <button
-            onClick={() => setFiltro("todas")}
-            style={{
-              ...styles.filtroButton,
-              background: filtro === "todas" ? "#007bff" : "#ccc",
-              color: filtro === "todas" ? "#fff" : "#000",
-            }}
-          >
-            Todas
-          </button>
-          <button
-            onClick={() => setFiltro("concluidas")}
-            style={{
-              ...styles.filtroButton,
-              background: filtro === "concluidas" ? "#28a745" : "#ccc",
-              color: filtro === "concluidas" ? "#fff" : "#000",
-            }}
-          >
-            Concluídas
-          </button>
-          <button
-            onClick={() => setFiltro("pendentes")}
-            style={{
-              ...styles.filtroButton,
-              background: filtro === "pendentes" ? "#ffc107" : "#ccc",
-              color: filtro === "pendentes" ? "#000" : "#000",
-            }}
-          >
-            Pendentes
-          </button>
-        </div>
-
-        {/* Lista */}
-        <ul style={styles.lista}>
-          {listaFiltrada.map((item, index) => (
-            <li
-              key={index}
-              style={{
-                ...styles.item,
-                borderLeft: `6px solid ${coresPrioridade[item.prioridade]}`,
-                background: item.concluida ? "#e0f7e9" : "#f7f9fa",
-                transform: item.concluida ? "scale(1.02)" : "scale(1)",
-                transition: "all 0.2s ease"
-              }}
-            >
-              {editandoIndex === index ? (
-                <input
-                  value={textoEditado}
-                  onChange={(e) => setTextoEditado(e.target.value)}
-                  style={styles.input}
-                />
-              ) : (
-                <span
-                  style={{
-                    textDecoration: item.concluida ? "line-through" : "none",
-                    color: item.concluida ? "#888" : "#000",
-                  }}
-                >
-                  {item.texto}
-                </span>
+            {/* Título */}
+            <div className="paper-header">
+              <h1 className="title">
+                <span className="title-icon">☯</span>
+                lista de tarefas
+              </h1>
+              {totalCount > 0 && (
+                <p className="subtitle">
+                  {completedCount}/{totalCount} tarefas concluídas
+                </p>
               )}
-              <div style={styles.actions}>
-                <button
-                  style={{
-                    ...styles.checkButton,
-                    background: item.concluida ? "#555" : "#28a745",
-                  }}
-                  onClick={() => toggleTarefa(index)}
-                >
-                  ✔
-                </button>
-                {editandoIndex === index ? (
-                  <button style={styles.saveButton} onClick={() => salvarEdicao(index)}>
-                    💾
+            </div>
+
+            {/* Input + seletor de prioridade */}
+            <div className={`input-row ${shake ? "shake" : ""}`}>
+              <input
+                ref={inputRef}
+                className="task-input"
+                type="text"
+                placeholder="Adicionar nova tarefa..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => handleKeyDown(e, addTask)}
+                maxLength={120}
+              />
+              <button className="btn-add" onClick={addTask} title="Adicionar">
+                <span>+</span>
+              </button>
+            </div>
+
+            {/* Seletor de prioridade para nova tarefa */}
+            <div className="priority-selector">
+              <span className="priority-label">Prioridade:</span>
+              <div className="priority-options">
+                {PRIORITIES.map((p) => (
+                  <button
+                    key={p.value}
+                    className={`priority-btn ${priority === p.value ? "selected" : ""}`}
+                    style={{
+                      "--p-color": p.color,
+                    }}
+                    onClick={() => setPriority(p.value)}
+                  >
+                    <span className="p-dot" style={{ background: p.color }} />
+                    {p.label}
                   </button>
-                ) : (
-                  <button style={styles.editButton} onClick={() => iniciarEdicao(index)}>
-                    ✏️
+                ))}
+              </div>
+            </div>
+
+            {/* Filtros */}
+            {tasks.length > 0 && (
+              <div className="filters">
+                {FILTERS.map((f) => (
+                  <button
+                    key={f}
+                    className={`filter-btn ${filter === f ? "active" : ""}`}
+                    onClick={() => setFilter(f)}
+                  >
+                    {f}
                   </button>
-                )}
-                <button style={styles.deleteButton} onClick={() => removerTarefa(index)}>
-                  ✖
+                ))}
+              </div>
+            )}
+
+            {/* Lista de tarefas */}
+            <ul className="task-list">
+              {filteredTasks.length === 0 && (
+                <li className="empty-state">
+                  {tasks.length === 0
+                    ? "✦ Nenhuma tarefa ainda. Comece agora!"
+                    : "Nenhuma tarefa nesta categoria."}
+                </li>
+              )}
+
+              {filteredTasks.map((task) => {
+                const pConfig = getPriority(task.priority || "Nenhuma");
+                return (
+                  <li
+                    key={task.id}
+                    className={`task-item ${task.completed ? "done" : ""}`}
+                  >
+                    {/* Barra lateral colorida de prioridade */}
+                    <span
+                      className="priority-bar"
+                      style={{ background: pConfig.color }}
+                      title={`Prioridade: ${pConfig.label}`}
+                    />
+
+                    {/* Checkbox */}
+                    <label className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={task.completed}
+                        onChange={() => toggleTask(task.id)}
+                      />
+                      <span className="custom-check">
+                        {task.completed && <span className="check-mark">✓</span>}
+                      </span>
+                    </label>
+
+                    {/* Texto / Edição inline */}
+                    {editingId === task.id ? (
+                      <div className="edit-wrapper">
+                        <input
+                          className="edit-input"
+                          value={editText}
+                          autoFocus
+                          onChange={(e) => setEditText(e.target.value)}
+                          onKeyDown={(e) => handleKeyDown(e, () => confirmEdit(task.id))}
+                          maxLength={120}
+                        />
+                        {/* Seletor de prioridade na edição */}
+                        <div className="edit-priority-row">
+                          {PRIORITIES.map((p) => (
+                            <button
+                              key={p.value}
+                              className={`priority-btn ${editPriority === p.value ? "selected" : ""}`}
+                              style={{ "--p-color": p.color }}
+                              onClick={() => setEditPriority(p.value)}
+                            >
+                              <span className="p-dot" style={{ background: p.color }} />
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <span
+                        className="task-text"
+                        onDoubleClick={() => !task.completed && startEdit(task)}
+                        title={task.completed ? "" : "Clique duplo para editar"}
+                      >
+                        {task.text}
+                      </span>
+                    )}
+
+                    {/* Badge de prioridade (visível quando não é Nenhuma) */}
+                    {task.priority && task.priority !== "Nenhuma" && editingId !== task.id && (
+                      <span
+                        className="priority-badge"
+                        style={{ color: pConfig.color, borderColor: `${pConfig.color}55`, background: `${pConfig.color}12` }}
+                      >
+                        {pConfig.label}
+                      </span>
+                    )}
+
+                    {/* Ações */}
+                    <div className="task-actions">
+                      {editingId === task.id ? (
+                        <>
+                          <button className="btn-icon confirm" onClick={() => confirmEdit(task.id)} title="Confirmar">✓</button>
+                          <button className="btn-icon cancel" onClick={cancelEdit} title="Cancelar">✕</button>
+                        </>
+                      ) : (
+                        <>
+                          {!task.completed && (
+                            <button className="btn-icon edit" onClick={() => startEdit(task)} title="Editar">✎</button>
+                          )}
+                          <button className="btn-icon delete" onClick={() => deleteTask(task.id)} title="Deletar">✕</button>
+                        </>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Rodapé */}
+            {completedCount > 0 && (
+              <div className="paper-footer">
+                <button className="btn-clear" onClick={clearCompleted}>
+                  Limpar concluídas ({completedCount})
                 </button>
               </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+            )}
+
+          </div>{/* /paper */}
+        </div>{/* /clipboard */}
+      </div>{/* /clipboard-wrapper */}
     </div>
   );
 }
-
-const styles = {
-  page: { display: "flex", justifyContent: "center", paddingTop: 50, fontFamily: "Arial, sans-serif", background: "#f0f4f8", minHeight: "100vh" },
-  container: { background: "#fff", padding: 25, borderRadius: 15, width: 500, boxShadow: "0 8px 25px rgba(0,0,0,0.1)" },
-  title: { textAlign: "center", marginBottom: 20, color: "#4A90E2" },
-  inputArea: { display: "flex", gap: 10, marginBottom: 20 },
-  input: { flex: 1, padding: 10, borderRadius: 10, border: "1px solid #ccc", outline: "none" },
-  select: { padding: 10, borderRadius: 10, border: "1px solid #ccc", cursor: "pointer" },
-  addButton: { padding: "10px 18px", borderRadius: 10, border: "none", background: "#4A90E2", color: "#fff", fontSize: 20, cursor: "pointer", transition: "0.2s" },
-  filtros: { display: "flex", justifyContent: "space-between", marginBottom: 20 },
-  filtroButton: { flex: 1, padding: "8px 0", margin: "0 5px", borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 500, transition: "0.2s" },
-  contadores: { display: "flex", justifyContent: "space-between", marginBottom: 20 },
-  contadorBadge: { flex: 1, margin: "0 5px", padding: "10px 0", borderRadius: 12, color: "#fff", fontWeight: "bold", textAlign: "center", boxShadow: "0 3px 6px rgba(0,0,0,0.1)" },
-  badge: { marginLeft: 8, background: "#fff", color: "#000", padding: "2px 8px", borderRadius: 12, fontWeight: "bold" },
-  lista: { listStyle: "none", padding: 0 },
-  item: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: 12, borderRadius: 10, marginBottom: 10, boxShadow: "0 2px 5px rgba(0,0,0,0.05)" },
-  actions: { display: "flex", gap: 5 },
-  checkButton: { border: "none", color: "#fff", padding: "6px 10px", borderRadius: 8, cursor: "pointer", fontWeight: "bold", transition: "0.2s" },
-  editButton: { background: "#F5A623", border: "none", padding: "6px 10px", borderRadius: 8, cursor: "pointer", fontWeight: "bold", transition: "0.2s" },
-  saveButton: { background: "#50E3C2", border: "none", padding: "6px 10px", borderRadius: 8, cursor: "pointer", color: "#fff", transition: "0.2s" },
-  deleteButton: { background: "#E94E77", border: "none", padding: "6px 10px", borderRadius: 8, cursor: "pointer", color: "#fff", transition: "0.2s" },
-};
 
 export default App;
