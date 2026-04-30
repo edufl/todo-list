@@ -6,13 +6,13 @@ Um aplicativo de lista de tarefas desenvolvido com React, com foco em CRUD, pers
 
 ## 🚀 Funcionalidades
 
-✅ CRUD completo — Criar, visualizar, editar e deletar tarefas
-🎯 Prioridades — Alta 🔴, Média 🟡, Baixa 🟢 e Nenhuma ⚪
-💾 Persistência — Dados salvos automaticamente no localStorage
-☑️ Marcar como concluída — Tarefa riscada ao ser completada
-✏️ Edição inline — Duplo clique no texto para editar
-🔍 Filtros — Visualize Todas, Pendentes ou Concluídas
-📱 Responsivo — Funciona em desktop e mobile 
+- ✅ CRUD completo — Criar, visualizar, editar e deletar tarefas
+- 🎯 Prioridades — Alta 🔴, Média 🟡, Baixa 🟢 e Nenhuma ⚪
+- 💾 Persistência — Dados salvos automaticamente no localStorage
+- ☑️ Marcar como concluída — Tarefa riscada ao ser completada
+- ✏️ Edição inline — Duplo clique no texto para editar
+- 🔍 Filtros — Visualize Todas, Pendentes ou Concluídas
+- 📱 Responsivo — Funciona em desktop e mobile 
 
 ---
 
@@ -46,11 +46,11 @@ https://github.com/user-attachments/assets/603463d5-dcbd-46c8-ba3b-869273b2bc10
 
 ## 🛠️ Tecnologias utilizadas
 
-React.js — Biblioteca de UI
-useState — Gerenciamento de estado local
-useEffect — Efeitos colaterais (persistência, foco)
-localStorage — Persistência dos dados no navegador
-CSS puro — Estilização sem dependências externas
+- React.js — Biblioteca de UI
+- useState — Gerenciamento de estado local
+- useEffect — Efeitos colaterais (persistência, foco)
+- localStorage — Persistência dos dados no navegador
+- CSS puro — Estilização sem dependências externas
 
 ---
 
