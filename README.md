@@ -18,7 +18,7 @@ Um aplicativo de lista de tarefas desenvolvido com React, com foco em CRUD, pers
 
 ## 🎥 Demonstração
 
-https://github.com/user-attachments/assets/603463d5-dcbd-46c8-ba3b-869273b2bc10
+https://github.com/user-attachments/assets/04ab34a7-a5fc-4c0d-8cab-5713c6a1a7fe
 
 ---
 ## 📋 Como usar
