@@ -21,25 +21,48 @@ Um aplicativo de lista de tarefas desenvolvido com React, com foco em CRUD, pers
 https://github.com/user-attachments/assets/603463d5-dcbd-46c8-ba3b-869273b2bc10
 
 ---
+## 📋 Como usar
+```bash
+| Ação                  | Como fazer                                                         |
+| --------------------- | ----------------------------------------------------------------   |
+| ➕ Adicionar tarefa    | Digite no campo e pressione **Enter** ou clique em **Adicionar** |
+| 🎯 Definir prioridade | Escolha antes de adicionar ou altere depois                       |
+| ☑️ Concluir tarefa    | Clique no checkbox                                                |
+| ✏️ Editar tarefa      | Edite diretamente no campo de texto                               |
+| ❌ Deletar tarefa      | Clique no botão "✕"                                              |
+| 🔍 Filtrar tarefas    | Use os botões: Todas, Alta, Média, Baixa, Nenhuma                 |
+```
+
+## 🎨 Sistema de prioridades
+```bash
+| Prioridade | Cor      | Descrição         |
+| ---------- | -------- | ----------------- |
+| 🔴 Alta    | Vermelho | Urgente           |
+| 🟡 Média   | Laranja  | Importante        |
+| 🟢 Baixa   | Verde    | Pode esperar      |
+| ⚪ Nenhuma  | Cinza    | Sem classificação |
+```
+---
 
 ## 🛠️ Tecnologias utilizadas
 
-- ⚛️ React (useState, useEffect)
-- 💾 localStorage (persistência de dados)
-- 🎨 CSS inline (estilização dinâmica)
-- 🧠 Manipulação de estado (CRUD completo)
+React.js — Biblioteca de UI
+useState — Gerenciamento de estado local
+useEffect — Efeitos colaterais (persistência, foco)
+localStorage — Persistência dos dados no navegador
+CSS puro — Estilização sem dependências externas
 
 ---
 
 ## 📂 Estrutura do projeto
-
+```bash
 src/
 ├── index.js         # não alterado
 ├── App.js           # Componente principal com toda a lógica React
 ├── App.css          # Estilos com design de aquarela chinesa
 └── assets/
     └── fundo.jpg    # Imagem de fundo (paisagem em aquarela)
-
+```
 ---
 
 ## ⚙️ Como rodar o projeto
